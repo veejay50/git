@@ -1,7 +1,9 @@
 package stepDefintions;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.By;
@@ -11,8 +13,11 @@ import org.openqa.selenium.support.ui.Select;
 import com.google.common.base.Verify;
 
 import methods.TestCaseFailed;
+import cucumber.api.DataTable;
+import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import env.BaseTest;
+import gherkin.formatter.model.DataTableRow;
 import junit.framework.Assert;
 
 public class PredefinedStepDefinitions implements BaseTest
@@ -25,28 +30,31 @@ public class PredefinedStepDefinitions implements BaseTest
 		{
 			navigationObj.navigateTo(link);
 		}
-			
-		//Step to navigate forward
-		@Then("^I navigate forward")
-		public void navigate_forward()
+		
+		@Given("^I am on the QAWorks Site$")
+		public void i_am_on_the_QAWorks_Site()
 		{
-			navigationObj.navigate("forward");
-		}
-			
-		//Step to navigate backward
-		@Then("^I navigate back")
-		public void navigate_back()
-		{
-			navigationObj.navigate("back");
+			navigationObj.navigateTo("http://www.qaworks.com");
 		}
 	  
-		//Close new window
-		@Then("^I close new window$")
-		public void close_new_window()
-		{
-			navigationObj.closeNewWindow();
+		@Then("^I should be able to contact QAWorks with the following information$")
+		public void i_should_be_able_to_contact_QAWorks_with_the_following_information(DataTable userDetailsTable) throws Exception {
+			   
+				clickObj.click("css", "#menu > li:nth-child(1) > a");
+			
+			//Write the code to handle Data Table
+			      HashMap<String, String> userDetailsMap = new HashMap<String, String>();
+			        for (DataTableRow row : userDetailsTable.getGherkinRows()) {
+			        	userDetailsMap.put(row.getCells().get(0),
+			                    row.getCells().get(1));
+			        }
+			    		inputObj.enterText("id", userDetailsMap.get("name"), "ctl00_MainContent_NameBox");
+			    		inputObj.enterText("id", userDetailsMap.get("email"), "ctl00_MainContent_EmailBox");
+			    		inputObj.enterText("id", userDetailsMap.get("message"), "ctl00_MainContent_MessageBox");
+
+			    		clickObj.click("id", "ctl00_MainContent_SendButton");
 		}
-		
+
 		// step to maximize browser
 		@Then("^I maximize browser window$")
 		public void maximize_browser()
@@ -60,37 +68,7 @@ public class PredefinedStepDefinitions implements BaseTest
 		{
 			navigationObj.closeDriver();
 		}
-			
-
-		@Then("^verify that (ListView|GridView|MapView) is selected and other views are available$")
-		public void verify_that_someView_is_selected_and_other_views_are_available(String view) throws Exception {
-			if(view.equals("ListView")){
-				Verify.verify(!driver.findElement(By.xpath("//*[@id='content']/div[3]/div[3]/a[1]")).getAttribute("class").contains("is-active"));
-				Verify.verify(driver.findElement(By.xpath("//*[@id='content']/div[3]/div[3]/a[1]")).getAttribute("title").equals("Grid view"));
-				Verify.verify(!driver.findElement(By.xpath("//*[@id='content']/div[3]/div[3]/a[2]")).getAttribute("class") .contains("is-active"));
-				Verify.verify(driver.findElement(By.xpath("//*[@id='content']/div[3]/div[3]/a[2]")).getAttribute("title").equals("Map view"));
-				Verify.verify(driver.findElement(By.xpath("//*[@id='content']/div[3]/div[3]/span")).getAttribute("class").contains("is-active"));
-				Verify.verify(driver.findElement(By.xpath("//*[@id='content']/div[3]/div[3]/span")).getAttribute("title").equals("List view"));
-			}
-			else if(view.equals("GridView")){
-				Verify.verify(!driver.findElement(By.xpath("//*[@id='content']/div[3]/div[3]/a[1]")).getAttribute("class").contains("is-active"));
-				Verify.verify(driver.findElement(By.xpath("//*[@id='content']/div[3]/div[3]/a[1]")).getAttribute("title").equals("List view"));
-				Verify.verify(!driver.findElement(By.xpath("//*[@id='content']/div[3]/div[3]/a[2]")).getAttribute("class") .contains("is-active"));
-				Verify.verify(driver.findElement(By.xpath("//*[@id='content']/div[3]/div[3]/a[2]")).getAttribute("title").equals("Map view"));
-				Verify.verify(driver.findElement(By.xpath("//*[@id='content']/div[3]/div[3]/span")).getAttribute("class").contains("is-active"));
-				Verify.verify(driver.findElement(By.xpath("//*[@id='content']/div[3]/div[3]/span")).getAttribute("title").equals("Grid view"));
-			}
-			else if(view.equals("MapView")){
-				Verify.verify(!driver.findElement(By.xpath("//*[@id='maps-header']/div/div/span/a[1]")).getAttribute("class").contains("is-active"));
-				Verify.verify(driver.findElement(By.xpath("//*[@id='maps-header']/div/div/span/a[1]")).getAttribute("title").equals("List view"));
-				Verify.verify(!driver.findElement(By.xpath("//*[@id='maps-header']/div/div/span/a[2]")).getAttribute("class").contains("is-active"));
-				Verify.verify(driver.findElement(By.xpath("//*[@id='maps-header']/div/div/span/a[2]")).getAttribute("title").equals("Grid view"));
-				Verify.verify(driver.findElement(By.xpath("//*[@id='maps-header']/div/div/span/span")).getAttribute("class").contains("is-active"));
-				Verify.verify(driver.findElement(By.xpath("//*[@id='maps-header']/div/div/span/span")).getAttribute("title").equals("Map view"));
-			}
-		}
-
-	 		
+				 		
 	// step to select dropdown list
 	@Then("^option \"(.*?)\" by (.+) from dropdown having (.+) \"(.*?)\" should be (selected|unselected)$")
 	public void is_option_from_dropdown_selected(String option,String by,String type,String accessName,String state) throws Exception
@@ -171,6 +149,4 @@ public class PredefinedStepDefinitions implements BaseTest
 		miscmethodObj.validateLocator(type);
 		progressObj.waitForElementToDisplay(type, accessName, duration);
 	}
-  
-
 }
